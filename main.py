@@ -56,6 +56,9 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
     scaler = torch.amp.GradScaler('cuda')
 
+    total_losses = []
+    total_dices = []
+
     for epoch in range(EPOCHS):
         model.train()
         total_loss = 0
@@ -78,6 +81,8 @@ if __name__ == '__main__':
             total_loss += loss.item()
             total_dice += dice_coeff(torch.sigmoid(preds), masks)
 
+        total_losses.append(total_loss / len(train_dataloader))
+        total_dices.append(total_dice / len(train_dataloader))
         logger.info(f"Epoch {epoch+1} | Loss: {total_loss/ len(train_dataloader):.4f} | Dice: {total_dice / len(train_dataloader):.4f}")
 
         if (epoch+1) % 10 == 0:
@@ -87,12 +92,30 @@ if __name__ == '__main__':
             torch.save(model.state_dict(), path_dir)
             logger.info(f"Model saved at {path_dir}")
 
-    model.eval()
-    with torch.no_grad():
-        img, mask = train_dataset[0]
-        pred = model(img[None].to(DEVICE))[0].cpu().squeeze().numpy()
-
-    plt.subplot(1, 3, 1); plt.imshow(img.squeeze(), cmap="gray"); plt.title("Image")
-    plt.subplot(1, 3, 2); plt.imshow(mask.squeeze(), cmap="gray"); plt.title("Mask")
-    plt.subplot(1, 3, 3); plt.imshow(pred > 0.5, cmap="gray"); plt.title("Prediction")
+    # Plotting the loss and dice coefficient
+    plt.figure(figsize=(12, 5))
+    plt.subplot(1, 2, 1)
+    plt.plot(total_losses, label='Loss')
+    plt.title('Training Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.subplot(1, 2, 2)
+    plt.plot(total_dices, label='Dice Coefficient', color='orange')
+    plt.title('Training Dice Coefficient')
+    plt.xlabel('Epochs')
+    plt.ylabel('Dice Coefficient')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('results/training_metrics.png')
     plt.show()
+
+    # model.eval()
+    # with torch.no_grad():
+    #     img, mask = train_dataset[0]
+    #     pred = model(img[None].to(DEVICE))[0].cpu().squeeze().numpy()
+
+    # plt.subplot(1, 3, 1); plt.imshow(img.squeeze(), cmap="gray"); plt.title("Image")
+    # plt.subplot(1, 3, 2); plt.imshow(mask.squeeze(), cmap="gray"); plt.title("Mask")
+    # plt.subplot(1, 3, 3); plt.imshow(pred > 0.5, cmap="gray"); plt.title("Prediction")
+    # plt.show()
