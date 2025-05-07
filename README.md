@@ -7,6 +7,26 @@ This project will guide how to perform a basic image segmentation task via deep 
 Download the dataset from [G-Drive](https://drive.google.com/drive/folders/1vX40j_Y3A7zkyZJVG2PUaiRmW2f6THl9) and place the folder `MosMedData` in the root directory. Then, run the following:
 ```bash
 pip install -r requirements.txt
-python main.py
+python main.py --train True
 ```
 This will start the training.
+![Train](results/train.png)
+
+```bash
+python main.py --test True
+```
+This will start the evaluation and save the figures in results directory. We have provided our trained model for testing purpose. It's in `checkpoints/best_model.pth`
+
+## Results
+![Fold 1](results/evaluation_fold0.png)
+![Fold 2](results/evaluation_fold1.png)
+![Fold 3](results/evaluation_fold2.png)
+![Fold 4](results/evaluation_fold3.png)
+![Fold 5](results/evaluation_fold4.png)
+
+## Graph Plots
+![Train 1](results/training_metrics_fold_1.png)
+![Train 2](results/training_metrics_fold_2.png)
+![Train 3](results/training_metrics_fold_3.png)
+![Train 4](results/training_metrics_fold_4.png)
+![Train 5](results/training_metrics_fold_5.png)
